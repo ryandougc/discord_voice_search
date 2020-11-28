@@ -15,9 +15,8 @@ As for why discord should genuinely consider adding this feature to discord, thi
 Universal Project Installation:
 1. Download the ZIP file and unzip
 2. Open VSCode
-3. Open New Terminal
-4. `npm install`
-5. [Create a discord bot:](https://discordpy.readthedocs.io/en/latest/discord.html)
+3. Open a New Terminal within VSCode and enter `npm install`
+5. [Create a discord bot](https://discordpy.readthedocs.io/en/latest/discord.html)
 6. Open file "env_variablees.env" and fill add your bot token after "token="
 7. In the terminal, enter `npm run devStart`
 
