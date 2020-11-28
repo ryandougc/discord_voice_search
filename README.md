@@ -11,6 +11,16 @@ To simplify the process of getting information about a game without the hassle o
 
 As for why discord should genuinely consider adding this feature to discord, this would mean that discord could become a much bigger part of gaming than just a means of communication with friends. With this feature, people playing singleplayer games will especially want to stay in a voice channel to gain acccess to this feature, meaning more people will use discord and its features like streaming and potentially pay for their premium services. 
 
+## Installation
+Universal Project Installation:
+1. Download the ZIP file and unzip
+2. Open VSCode
+3. Open New Terminal
+4. `npm install`
+5. [Create a discord bot:](https://discordpy.readthedocs.io/en/latest/discord.html)
+6. Open file "env_variablees.env" and fill add your bot token after "token="
+7. In the terminal, enter `npm run devStart`
+
 ## Current Todos
 * Implement Test Driven Development
 * Properly parse text search queries and consistently return google search quick results
