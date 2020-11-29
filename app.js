@@ -18,41 +18,45 @@ client.once('ready', () => {
 });
 
 client.on('message', async message => {
-    // Seperate command words
-    const commandFormat = /^!\w+/;
-    const optionalsFormat = /\s(.*)$/;
+    if (message.author.username === 'Test-Bot'){
+        return;
+    }else {
+        // Seperate command words
+        const commandFormat = /^!\w+/;
+        const optionalsFormat = /\s(.*)$/;
 
-    const command = (message.content.match(commandFormat))[0];
-    let optionals = null;
+        const command = (message.content.match(commandFormat))[0];
+        let optionals = null;
 
-    if (message.content.match(optionalsFormat)) {
-        optionals = message.content.match(optionalsFormat)[1];
-    }
-
-    console.log(`Command: ${command}`);
-    console.log(`Optionals: ${optionals}`);
-
-    // Google Search
-    if (command === `${prefix}search`) {
-        try{
-            const searchResults = await GoogleResults.launchBrowser(optionals);
-
-            message.channel.send(searchResults);
+        if (message.content.match(optionalsFormat)) {
+            optionals = message.content.match(optionalsFormat)[1];
         }
-        catch(e) {
-            console.log(e);
-        }
-    }
 
-    // Create an event listener for new guild members
-    client.on('guildMemberAdd', member => {
-        // Send the message to a designated channel on a server:
-        const channel = member.guild.channels.cache.find(ch => ch.name === 'member-log');
-        // Do nothing if the channel wasn't found on this server
-        if (!channel) return;
-        // Send the message, mentioning the member
-        channel.send(`Welcome to the server, ${member}`);
-    });
+        console.log(`Command: ${command}`);
+        console.log(`Optionals: ${optionals}`);
+
+        // Google Search
+        if (command === `${prefix}search`) {
+            try{
+                const searchResults = await GoogleResults.launchBrowser(optionals);
+
+                message.channel.send(searchResults);
+            }
+            catch(e) {
+                console.log(e);
+            }
+        }
+
+        // Create an event listener for new guild members
+        client.on('guildMemberAdd', member => {
+            // Send the message to a designated channel on a server:
+            const channel = member.guild.channels.cache.find(ch => ch.name === 'member-log');
+            // Do nothing if the channel wasn't found on this server
+            if (!channel) return;
+            // Send the message, mentioning the member
+            channel.send(`Welcome to the server, ${member}`);
+        });
+    }
 });
 
 client.login(token);
