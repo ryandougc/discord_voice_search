@@ -21,6 +21,12 @@ Universal Project Installation:
 7. Add your bot token in the new config.json fill
 8. In the terminal, enter `npm run devStart`
 
+## Usage
+Currently, searching is only available through text in a discord channel with the bot added.
+Type `!search <search parameters>` and replace "<search parameters>" with what you want to search in google
+
+Currently, the bot uses a headless chromium browser from pupeteer to search google and return the text in google's featured snippets box.
+
 ## Current Todos
 * Implement Test Driven Development
 * Properly parse text search queries and consistently return google search quick results
