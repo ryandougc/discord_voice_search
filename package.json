@@ -13,7 +13,6 @@
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "@google-cloud/text-to-speech": "^3.0.1",
-    "cheerio": "^1.0.0-rc.3",
     "discord.js": "^12.4.1",
     "eslint": "^7.2.0",
     "ffmpeg-static": "^4.2.4",
