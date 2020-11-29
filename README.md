@@ -29,7 +29,6 @@ Currently, the bot uses a headless chromium browser from pupeteer to search goog
 
 ## Current Todos
 * Implement Test Driven Development
-* Properly parse text search queries and consistently return google search quick results
 * Create audio files for the text-to-speech of the google quick results
 * Play the audio files automatically within a voice channel in discord
 * Convert a voice command into text from within a discord voice channel
