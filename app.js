@@ -23,22 +23,22 @@ client.on('message', async message => {
     }else {
         // Seperate command words
         const commandFormat = /^!\w+/;
-        const optionalsFormat = /\s(.*)$/;
+        const searchTermsFormat = /\s(.*)$/;
 
         const command = (message.content.match(commandFormat))[0];
-        let optionals = null;
+        let searchTerms = null;
 
-        if (message.content.match(optionalsFormat)) {
-            optionals = message.content.match(optionalsFormat)[1];
+        if (message.content.match(searchTermsFormat)) {
+            searchTerms = message.content.match(searchTermsFormat)[1];
         }
 
         console.log(`Command: ${command}`);
-        console.log(`Optionals: ${optionals}`);
+        console.log(`Search Terms: ${searchTerms}`);
 
         // Google Search
         if (command === `${prefix}search`) {
             try{
-                const searchResults = await GoogleResults.launchBrowser(optionals);
+                const searchResults = await GoogleResults.launchBrowser(searchTerms);
 
                 message.channel.send(searchResults);
             }
