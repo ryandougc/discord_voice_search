@@ -17,8 +17,9 @@ Universal Project Installation:
 2. Open VSCode
 3. Open a New Terminal within VSCode and enter `npm install`
 5. [Create a discord bot](https://discordpy.readthedocs.io/en/latest/discord.html)
-6. Open file "env_variablees.env" and fill add your bot token after "token="
-7. In the terminal, enter `npm run devStart`
+6. Duplicate file "sample_config.json" and rename it to "config.json"
+7. Add your bot token in the new config.json fill
+8. In the terminal, enter `npm run devStart`
 
 ## Current Todos
 * Implement Test Driven Development
