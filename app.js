@@ -1,7 +1,12 @@
 'use strict';
 
+const fs = require('fs');
+
 // require the discord.js module
 const Discord = require('discord.js');
+
+// require google TTS
+const gTTS = require('gtts');
 
 // create a new Discord client
 const client = new Discord.Client();
@@ -38,7 +43,30 @@ client.on('message', async message => {
         // Google Search
         if (command === `${prefix}search`) {
             try{
+                const audioFileName = Math.floor(Math.random() * 1000000000).toString();
+                const tmpPath = "./tmp/";
+
                 const searchResults = await GoogleResults.launchBrowser(searchTerms);
+
+                let voiceSearchResults = new gTTS(searchResults, 'en');
+
+                if(!fs.existsSync(tmpPath)){
+                    fs.mkdirSync(tmpPath);
+                }
+
+                voiceSearchResults.save(`./tmp/${audioFileName}.mp3`, async (err, result) => {
+                    if(err) throw new Error(err)
+                    console.log(`Success! Open file ./tmp/${audioFileName}.mp3 to hear result.`);
+
+                    // Make bot join voice chat
+                    const connection = await message.member.voice.channel.join();
+
+                    // Make bot play audio file
+                    const dispatcher = connection.play(`./tmp/${audioFileName}.mp3`, {
+                        volume: 0.5,
+                      });
+
+                })
 
                 message.channel.send(searchResults);
             }
