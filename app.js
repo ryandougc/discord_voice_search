@@ -1,90 +1,107 @@
 'use strict';
 
-const fs = require('fs');
+const fs                        = require('fs');            // Node Filesystem
+const Discord                   = require('discord.js');    // Discord JS
+const Gtts                      = require('gtts');          // Google text-to-speech
+const { prefix, token }         = require('./config.json'); // Discord JS Bot auth details
 
-// require the discord.js module
-const Discord = require('discord.js');
+let currentSearchResults    = null;
+let lastSearchResults       = null;
 
-// require google TTS
-const gTTS = require('gtts');
-
-// create a new Discord client
+// Initiate Discord client
 const client = new Discord.Client();
 
-const { prefix, token } = require('./config.json');
-
 // Import bot modules
-const GoogleResults = require('./googleResults.class.js');
+const GoogleResults             = require('./models/googleResults.class.js');
+// const TextToSpeech           = require('./models/textToSpeech.class.js');
 
-// when the client is ready, run this code
-// this event will only trigger one time after logging in
+// Confirmation for dev that the bot is initiated properly
 client.once('ready', () => {
     console.log('Ready!');
 });
 
+// Event listener for user submitted text commands
 client.on('message', async message => {
-    if (message.author.username === 'Test-Bot'){
-        return;
-    }else {
-        // Seperate command words
-        const commandFormat = /^!\w+/;
-        const searchTermsFormat = /\s(.*)$/;
+    // If a message is sent by the bot, exit this event listener
+    if (message.author.username === 'Test-Bot') return;
 
-        const command = (message.content.match(commandFormat))[0];
-        let searchTerms = null;
+    // Create regex for the command prefix, command and search terms
+    const prefixRegex           = /^!/;
+    const commandFormat         = /^!\w+/;
+    const searchTermsFormat     = /^!search\s(.*)$/;
+    let searchTerms             = null;
 
-        if (message.content.match(searchTermsFormat)) {
-            searchTerms = message.content.match(searchTermsFormat)[1];
-        }
+    // If a message doesn't start with the command prefix, exit this event
+    if (!message.content.match(prefixRegex)) return;
 
-        console.log(`Command: ${command}`);
+    // Match message to the commandFormat regex and extract the command from the message
+    const command = (message.content.match(commandFormat))[0];
+    console.log(`Command: ${command}`);
+
+    // If the command matches the searchTermsFormat, extract the search terms from the message
+    if (message.content.match(searchTermsFormat)) {
+        searchTerms = message.content.match(searchTermsFormat)[1];
         console.log(`Search Terms: ${searchTerms}`);
+    }
 
-        // Google Search
-        if (command === `${prefix}search`) {
-            try{
-                const audioFileName = Math.floor(Math.random() * 1000000000).toString();
-                const tmpPath = "./tmp/";
+    const tmpPath               = "./tmp/";                                                 // Audio file temporary folder location
+    const audioFileName         = Math.floor(Math.random() * 1000000000).toString();        // Audio file random, unique-ish, naming scheme
+    const audioFileType         = ".mp3";                                                   // Audio file type/extension
+    const audioFile             = `${tmpPath}${audioFileName}${audioFileType}`;             // Complete audio file path from root folder
 
-                const searchResults = await GoogleResults.launchBrowser(searchTerms);
+    // Google Search
+    if (command === `${prefix}search`) {
+        try{
+            // Search google for searchTerms
+            const searchResults = await GoogleResults.search(searchTerms);
 
-                let voiceSearchResults = new gTTS(searchResults, 'en');
+            // Convert searchReults into a voice audio file
+            let voiceSearchResults = new Gtts(searchResults, 'en');
 
-                if(!fs.existsSync(tmpPath)){
-                    fs.mkdirSync(tmpPath);
-                }
-
-                voiceSearchResults.save(`./tmp/${audioFileName}.mp3`, async (err, result) => {
-                    if(err) throw new Error(err)
-                    console.log(`Success! Open file ./tmp/${audioFileName}.mp3 to hear result.`);
-
-                    // Make bot join voice chat
-                    const connection = await message.member.voice.channel.join();
-
-                    // Make bot play audio file
-                    const dispatcher = connection.play(`./tmp/${audioFileName}.mp3`, {
-                        volume: 0.5,
-                      });
-
-                })
-
-                message.channel.send(searchResults);
+            // Create the temporary uadio file storage folder if it doesn't already exist
+            if(!fs.existsSync(tmpPath)){
+                fs.mkdirSync(tmpPath);
             }
-            catch(e) {
-                console.log(e);
-            }
+
+            // Save the audio file
+            voiceSearchResults.save(audioFile, async (err, result) => {
+                if(err) throw new Error(err)
+
+                // Confirmation for dev that the file was saved successfully
+                console.log(`Success! Open file ${audioFile} to hear result.`);
+
+                // Make bot join the voice channel that the author of the message is in
+                const connection = await message.member.voice.channel.join();
+
+                // Make bot play audio file in the voice channel
+                const dispatcher = connection.play(audioFile, {
+                    volume: 0.65,
+                });
+
+            })
+
+            // Keep track of last search results in text
+            lastSearchResults = currentSearchResults;
+            currentSearchResults = searchResults;
+
+            // Make bot send the searchResults text as a message
+            message.channel.send(searchResults);
         }
-
-        // Create an event listener for new guild members
-        client.on('guildMemberAdd', member => {
-            // Send the message to a designated channel on a server:
-            const channel = member.guild.channels.cache.find(ch => ch.name === 'member-log');
-            // Do nothing if the channel wasn't found on this server
-            if (!channel) return;
-            // Send the message, mentioning the member
-            channel.send(`Welcome to the server, ${member}`);
-        });
+        catch(e) {
+            console.log(e);
+        }
     }
 });
 
+// Event listener for new guild members - straight from discord.js docs
+client.on('guildMemberAdd', member => {
+    // Send the message to a designated channel on a server:
+    const channel = member.guild.channels.cache.find(ch => ch.name === 'member-log');
+    // Do nothing if the channel wasn't found on this server
+    if (!channel) return;
+    // Send the message, mentioning the member
+    channel.send(`Welcome to the server, ${member}`);
+});
+
+// Authenticate the bot
 client.login(token);
