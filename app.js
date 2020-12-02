@@ -1,12 +1,29 @@
 'use strict';
 
-const fs                        = require('fs');            // Node Filesystem
-const Discord                   = require('discord.js');    // Discord JS
-const Gtts                      = require('gtts');          // Google text-to-speech
-const { prefix, token }         = require('./config.json'); // Discord JS Bot auth details
+const fs                    = require('fs');            // Node Filesystem
+const path                  = require('path');          // Node Path utilities
+const Discord               = require('discord.js');    // Discord JS
+const Gtts                  = require('gtts');          // Google text-to-speech
+const { prefix, token }     = require('./config.json'); // Discord JS Bot auth details
+
+const tmpPath               = "./tmp/";                                                 // Audio file temporary folder location
+const audioFileName         = Math.floor(Math.random() * 1000000000).toString();        // Audio file random, unique-ish, naming scheme
+const audioFileType         = ".mp3";                                                   // Audio file type/extension
+const audioFile             = `${tmpPath}${audioFileName}${audioFileType}`;             // Complete audio file path from root folder
 
 let currentSearchResults    = null;
 let lastSearchResults       = null;
+
+// Clear temporary folder on start of application
+fs.readdir(tmpPath, (err, files) => {
+    if (err) throw err;
+
+    for (const file of files) {
+      fs.unlink(path.join(tmpPath, file), err => {
+        if (err) throw err;
+      });
+    }
+  });
 
 // Initiate Discord client
 const client = new Discord.Client();
@@ -43,11 +60,6 @@ client.on('message', async message => {
         searchTerms = message.content.match(searchTermsFormat)[1];
         console.log(`Search Terms: ${searchTerms}`);
     }
-
-    const tmpPath               = "./tmp/";                                                 // Audio file temporary folder location
-    const audioFileName         = Math.floor(Math.random() * 1000000000).toString();        // Audio file random, unique-ish, naming scheme
-    const audioFileType         = ".mp3";                                                   // Audio file type/extension
-    const audioFile             = `${tmpPath}${audioFileName}${audioFileType}`;             // Complete audio file path from root folder
 
     // Google Search
     if (command === `${prefix}search`) {
