@@ -1,6 +1,7 @@
 'use strict';
 
-const puppeteer = require('puppeteer');
+const puppeteer             = require('puppeteer');     // Puppeteer for making the google search
+const gTTS                  = require('gtts');          // Google text-to-speech engine
 
 module.exports = class {
     static async search(searchTerms) {
@@ -17,7 +18,6 @@ module.exports = class {
             await page.waitForSelector('.hgKElc');
 
             const quickResults = await page.$eval('.hgKElc', el => el.textContent);
-            console.log(quickResults);
 
             return quickResults;
         }
@@ -27,5 +27,10 @@ module.exports = class {
         finally{
             browser.close();
         }
+    }
+    static tts(){
+        let voiceSearchResults = new gTTS(searchResults, 'en');
+
+        return voiceSearchResults;
     }
 };

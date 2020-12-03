@@ -1,36 +1,21 @@
 'use strict';
 
-const fs                    = require('fs');            // Node Filesystem
-const path                  = require('path');          // Node Path utilities
 const Discord               = require('discord.js');    // Discord JS
-const Gtts                  = require('gtts');          // Google text-to-speech
 const { prefix, token }     = require('./config.json'); // Discord JS Bot auth details
-
-const tmpPath               = "./tmp/";                                                 // Audio file temporary folder location
-const audioFileName         = Math.floor(Math.random() * 1000000000).toString();        // Audio file random, unique-ish, naming scheme
-const audioFileType         = ".mp3";                                                   // Audio file type/extension
-const audioFile             = `${tmpPath}${audioFileName}${audioFileType}`;             // Complete audio file path from root folder
 
 let currentSearchResults    = null;
 let lastSearchResults       = null;
-
-// Clear temporary folder on start of application from https://stackoverflow.com/questions/27072866/how-to-remove-all-files-from-directory-without-removing-directory-in-node-js
-fs.readdir(tmpPath, (err, files) => {
-    if (err) throw err;
-
-    for (const file of files) {
-      fs.unlink(path.join(tmpPath, file), err => {
-        if (err) throw err;
-      });
-    }
-  });
 
 // Initiate Discord client
 const client = new Discord.Client();
 
 // Import bot modules
+const File                      = require('./models/file.class.js');
 const GoogleResults             = require('./models/googleResults.class.js');
-// const TextToSpeech           = require('./models/textToSpeech.class.js');
+const Message                   = require('./models/message.class.js');
+
+// If the temporary folder exists, clear it. If it doesn't exist, make a new one
+File.initTmp();
 
 // Confirmation for dev that the bot is initiated properly
 client.once('ready', () => {
@@ -42,55 +27,29 @@ client.on('message', async message => {
     // If a message is sent by the bot, exit this event listener
     if (message.author.username === 'Test-Bot') return;
 
-    // Create regex for the command prefix, command and search terms
-    const prefixRegex           = /^!/;
-    const commandFormat         = /^!\w+/;
-    const searchTermsFormat     = /^!search\s(.*)$/;
-    let searchTerms             = null;
-
     // If a message doesn't start with the command prefix, exit this event
-    if (!message.content.match(prefixRegex)) return;
+    if (!message.content.match(/^!/)) return;
 
-    // Match message to the commandFormat regex and extract the command from the message
-    const command = (message.content.match(commandFormat))[0];
-    console.log(`Command: ${command}`);
-
-    // If the command matches the searchTermsFormat, extract the search terms from the message
-    if (message.content.match(searchTermsFormat)) {
-        searchTerms = message.content.match(searchTermsFormat)[1];
-        console.log(`Search Terms: ${searchTerms}`);
-    }
+    // Split a command message into the command and the search terms
+    const [command, searchTerms] = await Message.splitCommand(message);
 
     // Google Search
-    if (command === `${prefix}search`) {
+    if (command === `${prefix}search` && searchTerms !== null) {
         try{
             // Search google for searchTerms
             const searchResults = await GoogleResults.search(searchTerms);
 
             // Convert searchReults into a voice audio file
-            let voiceSearchResults = new Gtts(searchResults, 'en');
+            let voiceSearchResults = GoogleResults.tts(searchResults);
 
-            // Create the temporary uadio file storage folder if it doesn't already exist
-            if(!fs.existsSync(tmpPath)){
-                fs.mkdirSync(tmpPath);
-            }
+            // Create a new audio file
+            const audioFile = new File('.mp3', message);
 
             // Save the audio file
-            voiceSearchResults.save(audioFile, async (err, result) => {
-                if(err) throw new Error(err)
+            audioFile.saveFile(voiceSearchResults);
 
-                // Confirmation for dev that the file was saved successfully
-                console.log(`Success! Open file ${audioFile} to hear result.`);
-
-                // Make bot join the voice channel that the author of the message is in
-                const connection = await message.member.voice.channel.join();
-
-                // Make bot play audio file in the voice channel
-                const dispatcher = connection.play(audioFile, {
-                    volume: 0.65,
-                });
-
-            })
+            // Play the audio file
+            audioFile.playAudioFile();
 
             // Keep track of last search results in text
             lastSearchResults = currentSearchResults;
