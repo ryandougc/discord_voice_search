@@ -17,33 +17,33 @@ module.exports = class {
         this.message = message;
     }
 
-    static createTmp() {
+    static async createTmp() {
         fs.mkdirSync(tmpPath);
     }
 
-    static clearTmp() {
+    static async clearTmp() {
         // Source: https://stackoverflow.com/questions/27072866/how-to-remove-all-files-from-directory-without-removing-directory-in-node-js
-        fs.readdir(tmpPath, (err, files) => {
+        fs.readdir(tmpPath, async (err, files) => {
             if (err) throw err;
 
             for (const file of files) {
-                fs.unlink(path.join(tmpPath, file), err => {
+                await fs.unlink(path.join(tmpPath, file), err => {
                     if (err) throw err;
                 });
             }
         });
     }
 
-    static initTmp() {
+    static async initTmp() {
         if(fs.existsSync(tmpPath)){
-            this.clearTmp();
+            await this.clearTmp();
         } else {
-            this.createTmp();
+            await this.createTmp();
         }
     }
 
-    saveFile(voiceSearchResults) {
-        voiceSearchResults.save(this.fullName, (err) => {
+    async saveFile(voiceSearchResults) {
+        await voiceSearchResults.save(this.fullName, (err) => {
             if(err) throw new Error(err);
 
             // Confirmation for dev that the file was saved successfully
@@ -56,7 +56,7 @@ module.exports = class {
         const connection = await this.message.member.voice.channel.join();
 
         // Make bot play audio file in the voice channel
-        const dispatcher = connection.play(this.fullName, {
+        const dispatcher = await connection.play(this.fullName, {
             volume: 0.65,
         });
     }

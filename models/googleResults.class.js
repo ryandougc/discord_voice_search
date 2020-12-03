@@ -28,7 +28,7 @@ module.exports = class {
             browser.close();
         }
     }
-    static tts(){
+    static async tts(){
         let voiceSearchResults = new gTTS(searchResults, 'en');
 
         return voiceSearchResults;

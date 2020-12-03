@@ -40,16 +40,16 @@ client.on('message', async message => {
             const searchResults = await GoogleResults.search(searchTerms);
 
             // Convert searchReults into a voice audio file
-            let voiceSearchResults = GoogleResults.tts(searchResults);
+            let voiceSearchResults = await GoogleResults.tts(searchResults);
 
             // Create a new audio file
-            const audioFile = new File('.mp3', message);
+            const audioFile = await new File('.mp3', message);
 
             // Save the audio file
-            audioFile.saveFile(voiceSearchResults);
+            await audioFile.saveFile(voiceSearchResults);
 
             // Play the audio file
-            audioFile.playAudioFile();
+            await audioFile.playAudioFile();
 
             // Keep track of last search results in text
             lastSearchResults = currentSearchResults;
