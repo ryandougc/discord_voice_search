@@ -28,8 +28,8 @@ module.exports = class {
             browser.close();
         }
     }
-    static async tts(){
-        let voiceSearchResults = new gTTS(searchResults, 'en');
+    static async tts(searchResults){
+        let voiceSearchResults = await new gTTS(searchResults, 'en');
 
         return voiceSearchResults;
     }
