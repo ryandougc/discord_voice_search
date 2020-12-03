@@ -14,7 +14,7 @@ const audioFile             = `${tmpPath}${audioFileName}${audioFileType}`;     
 let currentSearchResults    = null;
 let lastSearchResults       = null;
 
-// Clear temporary folder on start of application
+// Clear temporary folder on start of application from https://stackoverflow.com/questions/27072866/how-to-remove-all-files-from-directory-without-removing-directory-in-node-js
 fs.readdir(tmpPath, (err, files) => {
     if (err) throw err;
 

@@ -17,14 +17,15 @@ module.exports = class {
             await page.waitForSelector('.hgKElc');
 
             const quickResults = await page.$eval('.hgKElc', el => el.textContent);
+            console.log(quickResults);
 
-            return await quickResults;
+            return quickResults;
         }
         catch(e) {
             console.log(e);
         }
         finally{
-            await browser.close();
+            browser.close();
         }
     }
 };
